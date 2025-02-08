@@ -123,7 +123,7 @@ class VectorQuantizer2(nn.Module):
 
     def get_codebook_entry(self, indices):
         if self.remap is not None and self.unknown_index != "closest":
-            indices = indices.reshape(shape[0], -1)  # add batch axis
+            indices = indices.reshape(indices.shape[0], -1)  # add batch axis
             indices = self.unmap_to_all(indices)
             indices = indices.reshape(-1)  # flatten again
 
