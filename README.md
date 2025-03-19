@@ -1,6 +1,6 @@
 <div align="center">
 <h1>
-Moto: Latent Motion Token as the Bridging Language for Robot Manipulation
+Moto: Latent Motion Token as the Bridging Language for Learning Robot Manipulation from Videos
 
 <a href='https://chenyi99.github.io/moto/'><img src='https://img.shields.io/badge/Project-Page-Green'></a>
 <a href='https://arxiv.org/abs/2412.04445'><img src='https://img.shields.io/badge/Paper-Arxiv-red'></a> 
@@ -19,7 +19,7 @@ Inspired by the way humans learn new skills through observing dynamic environmen
 
 To this end, we introduce <b>Moto</b>, which converts video content into latent <b>Mo</b>tion <b>To</b>ken sequences by a Latent Motion Tokenizer, learning a bridging "language" of motion from videos in an unsupervised manner.
 We pre-train Moto-GPT through motion token autoregression, enabling it to capture diverse visual motion knowledge. After pre-training, Moto-GPT demonstrates the promising ability to produce semantically interpretable motion tokens, predict plausible motion trajectories, and assess trajectory rationality through output likelihood.
-To transfer learned motion priors to real robot actions, we implement a co-fine-tuning strategy that seamlessly bridges latent motion token prediction and real robot control. Extensive experiments show that the fine-tuned Moto-GPT exhibits superior robustness and efficiency on robot manipulation benchmarks, underscoring its effectiveness in transferring knowledge from video data to downstream visual manipulations.
+To transfer learned motion priors to real robot actions, we implement a co-fine-tuning strategy that seamlessly bridges latent motion token prediction and real robot control. Extensive experiments show that the fine-tuned Moto-GPT exhibits superior robustness and efficiency on robot manipulation benchmarks, underscoring its effectiveness in transferring knowledge from video data to downstream visual manipulation tasks.
 
 ## 🛠️Quick Start
 
