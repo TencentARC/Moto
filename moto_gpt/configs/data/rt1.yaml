@@ -1,5 +1,5 @@
 data_type: "rt1"
-lmdb_dir: "/group/40007/public_datasets/open-x-embodiment/lmdb_datasets/fractal20220817_data/" 
-video_dir: "/group/40007/public_datasets/open-x-embodiment/video_datasets/fractal20220817_data/image/"
+lmdb_dir: "/dataset_rc_mm/share/datasets/oxe_preprocess/lmdb_datasets/fractal20220817_data/" 
+video_dir: "/dataset_rc_mm/share/datasets/oxe_preprocess/video_datasets/fractal20220817_data/image/"
 rgb_shape: [256, 320]
 skip_frame: 3

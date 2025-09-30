@@ -39,6 +39,7 @@ class MotoGPT_Trainer:
         bs_per_gpu=32,
         max_epoch=None,
         pred_binary_gripper_action=True,
+        seed=None
     ):
         ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
         accelerator= Accelerator(
@@ -46,6 +47,10 @@ class MotoGPT_Trainer:
             kwargs_handlers=[ddp_kwargs]
         )
         self.accelerator = accelerator
+        if seed is not None:
+            from transformers import set_seed
+            print(f"set_seed: {seed+self.accelerator.process_index}")
+            set_seed(seed+self.accelerator.process_index)
 
         if resume_ckpt_path is not None:
             self.print(f"resuming Moto-GPT from {resume_ckpt_path} ...")
@@ -65,8 +70,6 @@ class MotoGPT_Trainer:
             missing_keys, unexpected_keys = moto_gpt.load_state_dict(filtered_state_dict, strict=False)
             missing_root_keys = set([k.split(".")[0] for k in missing_keys])
             self.print('load ', resume_ckpt_path, '\nmissing ', missing_root_keys, '\nunexpected ', unexpected_keys, '\nmismatched ', mismatched_param_names)
-        
-        
         optimizer = torch.optim.AdamW(moto_gpt.parameters(), lr=lr_max, weight_decay=weight_decay, fused=True)
         total_prints_per_epoch = len(train_dataloader.dataset) // (print_steps * bs_per_gpu * accelerator.num_processes)
         scheduler = get_cosine_schedule_with_warmup(

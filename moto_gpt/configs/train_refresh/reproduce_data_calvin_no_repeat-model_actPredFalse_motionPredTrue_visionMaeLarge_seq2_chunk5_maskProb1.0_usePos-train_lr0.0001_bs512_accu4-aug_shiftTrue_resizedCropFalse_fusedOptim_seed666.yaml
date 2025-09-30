@@ -1,0 +1,26 @@
+moto_gpt_config_path: "/dataset_rc_mm/cheny117@xiaopeng.com/Moto/moto_gpt/configs/models/actPredFalse_motionPredTrue_visionMaeLarge_seq2_chunk5_maskProb1.0_usePos.yaml"
+latent_motion_tokenizer_path: "/dataset_rc_mm/cheny117@xiaopeng.com/Moto/latent_motion_tokenizer/checkpoints/latent_motion_tokenizer_trained_on_calvin"
+dataset_config_path: "/dataset_rc_mm/cheny117@xiaopeng.com/Moto/moto_gpt/configs/data/calvin_no_repeat.yaml"
+dataloader_config:
+  bs_per_gpu: 16
+  workers_per_gpu: 7
+  prefetch_factor: 2
+rgb_preprocessor_config: 
+  model_vision_type: "mae"
+  vision_aug_config: 
+    do_random_resized_crop: false
+    do_random_shift: true
+training_config:
+  num_epochs: 20
+  num_warmup_epochs: 1
+  print_steps: 100
+  lr_max: 0.0001
+  weight_decay: 0.0001
+  gradient_accumulation_steps: 4
+  save_epochs: 1
+  save_steps: 10000
+  save_path: "/dataset_rc_mm/cheny117@xiaopeng.com/Moto/moto_gpt/outputs_refresh/moto_gpt_pretrained_on_calvin/reproduce_data_calvin_no_repeat-model_actPredFalse_motionPredTrue_visionMaeLarge_seq2_chunk5_maskProb1.0_usePos-train_lr0.0001_bs512_accu4-aug_shiftTrue_resizedCropFalse_fusedOptim_seed666"
+  resume_ckpt_path: null
+  max_epoch: 10
+  pred_binary_gripper_action: true
+  seed: 666

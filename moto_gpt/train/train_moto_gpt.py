@@ -16,6 +16,12 @@ from common.data.data_utils import load_dataset
 
 def main(cfg):
     # Prepare Moto-GPT
+    seed = cfg['training_config'].get('seed', None)
+    if seed is not None:
+        from transformers import set_seed
+        print(f"set_seed: {seed}")
+        set_seed(seed)
+
     moto_gpt_config_path = cfg['moto_gpt_config_path']
     print(f"initializing Moto-GPT from {moto_gpt_config_path} ...")
     moto_gpt_config = omegaconf.OmegaConf.load(moto_gpt_config_path)

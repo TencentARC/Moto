@@ -31,48 +31,36 @@ def get_split_and_ratio(split, splits):
             end_ratio=1
     return split, start_ratio, end_ratio
 
-class DataPrefetcher():
+class DataPrefetcher:
     def __init__(self, loader, device, lang_tokenizer=None):
-        self.device = device
         self.loader = loader
+        self.device = device
         self.lang_tokenizer = lang_tokenizer
         self.iter = iter(self.loader)
-        self.stream = torch.cuda.Stream()
-        self.preload()
-
-    def preload(self):
-        try:
-            # Dataloader will prefetch data to cpu so this step is very quick
-            self.batch = next(self.iter)
-        except StopIteration:
-            self.batch = None
-            self.iter = iter(self.loader)
-            return 
-        if self.lang_tokenizer is not None:
-            lang_inputs = self.lang_tokenizer(self.batch['lang'], return_tensors="pt", padding=True)
-            lang_input_ids = lang_inputs.input_ids
-            lang_attention_mask = lang_inputs.attention_mask
-            self.batch["lang_input_ids"] = lang_input_ids
-            self.batch["lang_attention_mask"] = lang_attention_mask
-
-        with torch.cuda.stream(self.stream):
-            for key in self.batch:
-                if type(self.batch[key]) is torch.Tensor:
-                    self.batch[key] = self.batch[key].to(self.device, non_blocking=True)
-        
-        # self.batch["lang"] = np.array(self.batch['lang'])
 
     def __len__(self):
         return len(self.loader.dataset)
 
     def next(self):
         clock = time()
-        batch = self.batch
+        try:
+            batch = next(self.iter)
+        except StopIteration:
+            self.iter = iter(self.loader)
+            return None, time()-clock
+
         if batch is not None:
-            for key in batch:
-                if type(batch[key]) is torch.Tensor:
-                    batch[key].record_stream(torch.cuda.current_stream())
-        self.preload()
+            if self.lang_tokenizer is not None:
+                lang_inputs = self.lang_tokenizer(batch['lang'], return_tensors="pt", padding=True)
+                lang_input_ids = lang_inputs.input_ids
+                lang_attention_mask = lang_inputs.attention_mask
+                batch["lang_input_ids"] = lang_input_ids
+                batch["lang_attention_mask"] = lang_attention_mask
+
+            for k, v in batch.items():
+                if isinstance(v, torch.Tensor):
+                    batch[k] = v.to(self.device)
+
         return batch, time()-clock
 
     def next_without_none(self):
@@ -108,7 +96,8 @@ class LMDBDataset_for_MotoGPT(Dataset):
         sequence_length, #start_ratio, end_ratio, 
         chunk_size=3, act_dim=7, 
         do_extract_future_frames=True, do_extract_action=False,
-        video_dir=None, rgb_shape=(224, 224), rgb_preprocessor=None, max_skip_frame=None):
+        video_dir=None, rgb_shape=(224, 224), rgb_preprocessor=None, max_skip_frame=None,
+        no_repeat_data=False):
 
 
         super().__init__()
@@ -129,6 +118,7 @@ class LMDBDataset_for_MotoGPT(Dataset):
         self.lmdb_dir = lmdb_dir
         self.video_dir = video_dir
         self.rgb_preprocessor = rgb_preprocessor
+        self.no_repeat_data = no_repeat_data
 
         split, start_ratio, end_ratio = get_split_and_ratio(split, os.listdir(lmdb_dir))
         self.split = split
@@ -236,8 +226,9 @@ class LMDBDataset_for_MotoGPT(Dataset):
                         mask=mask
                     )
 
-                if self.do_extract_future_frames and (not self.do_extract_action) and latent_mask.sum() == 0:
-                    raise Exception("latent_mask should be larger than zero!")
+                if not self.no_repeat_data:
+                    if self.do_extract_future_frames and (not self.do_extract_action) and latent_mask.sum() == 0:
+                        raise Exception("latent_mask should be larger than zero!")
 
                 return {
                     "lang": lang,
@@ -252,6 +243,7 @@ class LMDBDataset_for_MotoGPT(Dataset):
             except Exception as e:
                 # print(e)
                 idx = random.randint(0, len(self))
+                # print(idx)
             
 
     def __len__(self):

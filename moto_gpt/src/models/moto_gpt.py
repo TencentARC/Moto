@@ -103,7 +103,8 @@ class MotoGPT(nn.Module):
         self.use_latent_motion_pos_embedding = use_latent_motion_pos_embedding
         # print(f"use_latent_motion_pos_embedding: {self.use_latent_motion_pos_embedding}")
         if self.use_latent_motion_pos_embedding:
-            self.embed_latent_motion_pos = nn.Embedding(per_latent_motion_len+1, hidden_size)
+            print(f"use_latent_motion_pos_embedding: {self.use_latent_motion_pos_embedding}")
+            self.embed_latent_motion_pos = nn.Embedding((per_latent_motion_len+1)*sequence_length, hidden_size)
 
         # Layer norm
         self.embed_ln = nn.LayerNorm(hidden_size)
@@ -206,6 +207,7 @@ class MotoGPT(nn.Module):
 
             if self.use_latent_motion_pos_embedding:
                 latent_motion_pos_embeddings = self.embed_latent_motion_pos.weight # (per_latent_motion_len+1, h)
+                latent_motion_pos_embeddings = latent_motion_pos_embeddings.reshape(sequence_length, -1, latent_motion_pos_embeddings.shape[-1])
                 act_stacked_inputs = act_stacked_inputs + latent_motion_pos_embeddings
         else:
             act_stacked_inputs = torch.tensor([]).to(rgb.device)
@@ -390,7 +392,7 @@ class MotoGPT(nn.Module):
             cur_pred_latent_motion_embeddings = self.embed_latent_motion(cur_pred_latent_motion_ids) # (b, t, h) or  # (b, h)
 
             if self.use_latent_motion_pos_embedding:
-                cur_latent_motion_pos_embedding = self.embed_latent_motion_pos.weight[j+1] # (h,)
+                cur_latent_motion_pos_embedding = self.embed_latent_motion_pos.weight[(buffer_len-1)*(self.per_latent_motion_len+1) + j+1] # (h,)
                 cur_pred_latent_motion_embeddings += cur_latent_motion_pos_embedding
 
             if self.use_timestep_embedding:
@@ -492,7 +494,7 @@ class MotoGPT(nn.Module):
             cur_pred_latent_motion_embeddings = self.embed_latent_motion(latent_motion_id_preds[:, :, j])  # (b, beam_size, h)
 
             if self.use_latent_motion_pos_embedding:
-                cur_latent_motion_pos_embedding = self.embed_latent_motion_pos.weight[j+1] # (h,)
+                cur_latent_motion_pos_embedding = self.embed_latent_motion_pos.weight[(buffer_len-1)*(self.per_latent_motion_len+1) + j+1] # (h,)
                 cur_pred_latent_motion_embeddings += cur_latent_motion_pos_embedding
 
             if self.use_timestep_embedding:

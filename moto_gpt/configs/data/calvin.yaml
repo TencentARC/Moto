@@ -1,4 +1,4 @@
 data_type: "calvin"
-lmdb_dir: "/group/40007/public_datasets/calvin_dataset/lmdb_datasets/task_ABC_D/"
+lmdb_dir: "/dataset_rc_mm/cheny117@xiaopeng.com/data/calvin_dataset/lmdb_datasets/task_ABC_D/"
 rgb_shape: [200, 200]
 skip_frame: 5
