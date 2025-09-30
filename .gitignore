@@ -4,7 +4,7 @@ model_checkpoints
 **/local*
 .idea
 **/*.bin
-**/*.log
+# **/*.log
 **/output*
 **/eval_results*
 **/berkeley_fanuc_manipulation
